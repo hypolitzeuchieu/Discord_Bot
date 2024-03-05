@@ -1,4 +1,4 @@
-
+from key_token import token_key
 from discord import Intents
 from discord.ext import commands
 
@@ -34,4 +34,4 @@ async def on_member_join(member):
         print(f"something went wrong : {e}")
 
 
-bot.run("MTIxNDUyNjkyNjg2NjA5NjEzOA.GNq40n.Mq_fjoAOw8_sJ_pIkeRESb10ptmhyQ2vViq7bk")
+bot.run(token_key)
