@@ -1,4 +1,5 @@
 import discord
+from discord.ext.commands.errors import UserNotFound
 
 from key_token import token_key
 from discord import Intents
@@ -37,8 +38,7 @@ async def on_member_join(member):
     try:
         general_channel = bot.get_channel(1214528710414307340)
         if general_channel:
-            content = f"""welcome **{member.display_name}** to this server **{member.guild.name}** this is a message of 
-            **{bot.user.name}**"""
+            content = f"welcome **{member.display_name}** to this server **{member.guild.name}** this is a message of **{bot.user.name}**"
             await general_channel.send(content)
     except Exception as e:
         print(f"something went wrong : {e}")
@@ -57,5 +57,61 @@ async def drop(ctx, number_of_message: int):
     except Exception as e:
         print(f"something went wrong : {e}")
         await ctx.send("something went wrong.")
+
+
+@bot.command(name="kick")
+async def kick_member(ctx, user: discord.Member, *raison):
+    reason = " ".join(raison)
+    if not reason:
+        reason = "no reason provided"
+    try:
+        if ctx.author.guild_permissions.kick_members:
+            await ctx.guild.kick(user=user, reason=reason)
+            await ctx.send(f"**{user}** was kicked and the reason is **{reason}**", delete_after=20)
+    except Exception as e:
+        print(f"something went wrong : {e}")
+        await ctx.send("something went wrong.")
+
+
+@bot.command(name='ban')
+async def ban_member(ctx, user: discord.User, *reason):
+
+    if not ctx.author.guild_permissions.ban_members:
+        await ctx.send("permission denied")
+
+    reason = " ".join(reason)
+    if not reason:
+        reason = "no reason provided"
+
+    try:
+        await ctx.guild.ban(user=user, reason=reason)
+        await ctx.send(f"**{user}** was banned and the reason is **{reason}**")
+
+    except discord.Forbidden:
+        await ctx.send("i've not permission to ban that member")
+
+    except discord.HTTPException as e:
+        await ctx.send(f"error **{e}**")
+
+    except UserNotFound:
+        await ctx.send(f"**{user}** not found")
+
+    except Exception as e:
+        print(f"something went wrong : {e}")
+        await ctx.send("something went wrong.")
+
+
+@bot.command(name='unban')
+async def unban(ctx, user: discord.User, *reason):
+    reason = " ".join(reason)
+    if not reason:
+        reason = "no reason provided"
+    try:
+        await ctx.guild.unban(user, reason=reason)
+        await ctx.send(f"**{user.name}** was unbanned and the reason is **{reason}**")
+    except discord.NotFound:
+        await ctx.send(f"**{user.name}** not found")
+    except discord.Forbidden:
+        await ctx.send("permission denied")
 
 bot.run(token_key)
