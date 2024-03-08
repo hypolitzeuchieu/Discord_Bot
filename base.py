@@ -1,3 +1,4 @@
+import json
 import random
 
 import discord
@@ -6,7 +7,7 @@ from discord.ext.commands.errors import UserNotFound
 
 from key_token import token_key
 from discord import Intents
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 intents = Intents.all()
 intents.guilds = True
@@ -129,7 +130,7 @@ async def unban(ctx, user: discord.User, *reason):
         await ctx.send("permission denied")
 
 
-# get endpoint data
+# get endpoint data (quote command !quote)
 def get_api_data():
     url = "https://dummyjson.com/quotes"
     response = requests.get(url)
@@ -154,6 +155,29 @@ async def quote(ctx):
 
     else:
         await ctx.send("not found")
+
+# challenges command(!challenge)
+
+
+def open_file():
+    with open('test.json', 'r') as f:
+        data = json.load(f)
+        return data
+
+
+def random_challenges(challenges):
+    return random.choice(challenges)
+
+
+@bot.command(name="challenge")
+async def challenge(ctx):
+    property_challenge = open_file()
+    data = property_challenge['challenges']
+    if data:
+        random_challenge = random_challenges(data)
+        await ctx.send(f"challenge:**{random_challenge['name']}**\n**{random_challenge['url']}**")
+    else:
+        await ctx.send("page not found")
 
 
 bot.run(token_key)
