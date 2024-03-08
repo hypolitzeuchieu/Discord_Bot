@@ -1,9 +1,12 @@
+import random
+
 import discord
+import requests
 from discord.ext.commands.errors import UserNotFound
 
 from key_token import token_key
 from discord import Intents
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 intents = Intents.all()
 intents.guilds = True
@@ -39,6 +42,17 @@ async def on_member_join(member):
         general_channel = bot.get_channel(1214528710414307340)
         if general_channel:
             content = f"welcome **{member.display_name}** to this server **{member.guild.name}** this is a message of **{bot.user.name}**"
+            await general_channel.send(content)
+    except Exception as e:
+        print(f"something went wrong : {e}")
+
+
+@bot.event
+async def on_member_remote(member):
+    try:
+        general_channel = bot.get_channel(1214528710414307340)
+        if general_channel:
+            content = f" **{member.display_name}** has left that server **{member.guild.name}** this is a message of **{bot.user.name}**"
             await general_channel.send(content)
     except Exception as e:
         print(f"something went wrong : {e}")
@@ -109,9 +123,37 @@ async def unban(ctx, user: discord.User, *reason):
     try:
         await ctx.guild.unban(user, reason=reason)
         await ctx.send(f"**{user.name}** was unbanned and the reason is **{reason}**")
-    except discord.NotFound:
+    except UserNotFound:
         await ctx.send(f"**{user.name}** not found")
     except discord.Forbidden:
         await ctx.send("permission denied")
+
+
+# get endpoint data
+def get_api_data():
+    url = "https://dummyjson.com/quotes"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()["quotes"]
+    else:
+        print("get error")
+        return []
+
+
+# random choice function
+def get_random_quote(quotes):
+    return random.choice(quotes)
+
+
+@bot.command(name="quote")
+async def quote(ctx):
+    quote_data = get_api_data()
+    if quote_data:
+        random_quote = get_random_quote(quote_data)
+        await ctx.send(f"**{random_quote['quote']}**")
+
+    else:
+        await ctx.send("not found")
+
 
 bot.run(token_key)
