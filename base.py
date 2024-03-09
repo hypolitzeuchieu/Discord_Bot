@@ -179,5 +179,17 @@ async def challenge(ctx):
     else:
         await ctx.send("page not found")
 
+# add list command ( !list )
+
+
+@bot.command(name="list")
+async def list_challenges(ctx):
+    property_list = open_file()
+    data = property_list['challenges']
+    for i in data:
+        await ctx.send(f"**{i['name']}**:{i['url']}")
+
+# add command( !add)
+
 
 bot.run(token_key)
