@@ -192,4 +192,22 @@ async def list_challenges(ctx):
 # add command( !add)
 
 
+@bot.command(name="add")
+async def add_command(ctx, urls):
+    com = open_file()
+    data = com['challenges']
+    for i in data:
+        if i['url'] == urls:
+            await ctx.send(f"**{i['name']}**:{i['url']} already  exist")
+            return
+    await ctx.send(f"unable to add: **{urls}** please check it is a valid Coding Challenge")
+
+    # new_challenge = {"name": "new challenge", "url": urls}
+    # data.append(new_challenge)
+    #
+    # with open('test.json', 'w') as file:
+    #     json.dump(com, file, indent=4)
+    #
+    # await ctx.send(f"**{new_challenge['name']}**:{new_challenge['url']} added successfully")
+
 bot.run(token_key)
