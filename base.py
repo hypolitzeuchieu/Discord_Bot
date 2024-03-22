@@ -1,5 +1,9 @@
 import json
 import random
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 import discord
 import requests
@@ -32,7 +36,7 @@ async def on_message(message):
     if message.content.startswith('!'):
         return
 
-    salutation_name = ['hey', 'hi', 'hello']
+    salutation_name = ['hey', 'hi', 'hello', 'coucou']
     if message.content.lower() in salutation_name:
         await message.channel.send(f"hello **{message.author.display_name}** hope *you are fine*!", delete_after=10)
 
@@ -41,6 +45,11 @@ async def on_message(message):
 async def on_member_join(member):
     try:
         general_channel = bot.get_channel(1214528710414307340)
+        guild = member.guild
+        permissions = discord.Permissions(read_messages=True, send_messages=True)
+        role = await guild.create_role(name="member_join", permissions=permissions)
+        await member.add_roles(role)
+        print(role)
         if general_channel:
             content = f"welcome **{member.display_name}** to this server **{member.guild.name}** this is a message of **{bot.user.name}**"
             await general_channel.send(content)
@@ -210,4 +219,30 @@ async def add_command(ctx, urls):
     #
     # await ctx.send(f"**{new_challenge['name']}**:{new_challenge['url']} added successfully")
 
-bot.run(token_key)
+# function to retrieve a guild's roles
+
+
+async def get_role(guild):
+    return await guild.fetch_roles()
+
+    # command to list role
+
+
+@bot.command(name="listroles")
+async def list_role(ctx):
+    guild = ctx.guild
+    roles = await get_role(guild)
+
+    if roles:
+        embed = discord.Embed(title=f"Role in {guild.name}")
+
+        for role in roles:
+            embed.add_field(name=role.name, value=f"ID={role.id}", inline=False)
+            await ctx.send(embed=embed)
+    else:
+        await ctx.send(f"this server currently has no role.")
+
+# command to add role
+
+
+bot.run(os.getenv("token_key"))
