@@ -9,7 +9,6 @@ import discord
 import requests
 from discord.ext.commands.errors import UserNotFound
 
-from key_token import token_key
 from discord import Intents
 from discord.ext import commands
 
